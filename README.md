@@ -1,4 +1,5 @@
 # Projet de fin de module NoSQL
+## Réalisé par TANGARA YOUSSOUF
 
 Pour ce projet, vous allez créer une petite API qui va servir de backend à une plateforme d'apprentissage en ligne. J'ai préparé la structure du projet avec une organisation professionnelle du code, comme vous pouvez le constater dans ce dépôt Github.
 
