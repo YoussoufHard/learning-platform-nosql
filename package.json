@@ -14,12 +14,12 @@
   "author": "Abdelaziz DAAIF",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "mongodb": "^6.12.0",
     "redis": "^4.7.0"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/YoussoufHard/learning-platform-nosql.git"
