@@ -30,7 +30,6 @@ Il est essentiel de ne pas inclure les éléments suivants dans le dépôt Git :
 2. Clés d’API ou identifiants de services tiers.
 3. Secrets ou clés privées pour des services comme JWT.
 4. Ports ou configurations spécifiques à l'environnement.
----
 
 ### Fichier `.gitignore`
 
@@ -39,7 +38,6 @@ Le fichier `.gitignore` permet d'exclure certains fichiers ou dossiers du dépô
 
 #### Contenu du fichier `.gitignore`
 Voici le contenu du fichier `.gitignore` utilisé dans ce projet : `node_modules/` et `.env` 
----
 
 ### Gestion des connexions aux bases de données `config/db.js`
 
@@ -48,7 +46,6 @@ Créer un module séparé pour gérer les connexions aux bases de données perme
 
 #### Comment gérer proprement la fermeture des connexions ?
 Pour gérer proprement la fermeture des connexions, nous avons utilisé une fonction dédiée `closeConnections()`, qui ferme les connexions MongoDB et Redis lorsque l'application est arrêtée. Cette approche permet de s'assurer que toutes les connexions sont fermées proprement, ce qui évite les fuites de ressources et garantit la stabilité de l'application. Il est également important de gérer les erreurs lors de la fermeture pour s'assurer qu'aucun problème n'est ignoré.
----
 
 ### Fichier : `env.js`
 
@@ -59,7 +56,6 @@ Il est important de valider les variables d'environnement au démarrage de l'app
 
 #### Que se passe-t-il si une variable requise est manquante ?
 Si une variable requise est manquante, le programme lève une erreur explicite, ce qui empêche l'application de démarrer. Cela permet de signaler immédiatement les problèmes de configuration et d'empêcher le démarrage de l'application dans un état incorrect, réduisant ainsi les risques d'erreurs imprévues pendant l'exécution.
----
 
 ### Fichier : `env.js`
 
