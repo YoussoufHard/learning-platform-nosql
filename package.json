@@ -18,5 +18,14 @@
     "express": "^4.21.2",
     "mongodb": "^6.12.0",
     "redis": "^4.7.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YoussoufHard/learning-platform-nosql.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YoussoufHard/learning-platform-nosql/issues"
+  },
+  "homepage": "https://github.com/YoussoufHard/learning-platform-nosql#readme"
 }
