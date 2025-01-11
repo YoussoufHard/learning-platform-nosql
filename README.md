@@ -70,7 +70,7 @@ La gestion du démarrage de l'application se fait via la fonction `startServer()
 
 Cette approche assure que l'application ne démarre que lorsque toutes les connexions nécessaires sont établies et que les routes sont correctement configurées. Si une erreur survient, elle est loggée et l'application s'arrête proprement, empêchant ainsi un démarrage incorrect.
 
-### Capture d'ecran montrant que la connection à la base de données mongdb marche bien de meme pour redis
+### Capture d'ecran montrant que la connection à la base de données mongdb marche bien de même pour redis
 ![Capture test connectivité au database](img/connection.png)
 
 ### Fichier : `courseController.js`
@@ -97,7 +97,26 @@ Séparer les routes dans différents fichiers permet de maintenir une structure 
 #### Comment organiser les routes de manière cohérente ?
 Les routes doivent être organisées selon les ressources qu'elles manipulent. Par exemple, dans le fichier `courseRoutes.js`, toutes les routes relatives aux cours (comme la création d'un cours, la récupération des détails d'un cours ou les statistiques) sont groupées. Il est aussi conseillé de suivre une convention de nommage cohérente pour les URL et de les organiser selon des groupes logiques. Cela permet de créer une structure uniforme et d'éviter des conflits entre les différentes routes de l'application.
 
+### Fichier : `mongoServices.js`
 
+#### Question: Pourquoi créer des services séparés ?
+Réponse: Les services séparés permettent d'organiser la logique métier et les interactions avec la base de données de manière cohérente et modulaire. Ils facilitent la maintenance, les tests unitaires et le réemploi du code. Par exemple, les services MongoDB regroupent toutes les opérations sur la base de données, ce qui réduit la duplication et isole les détails d'implémentation.
+
+### Fichier : `mongoServices.js`
+
+#### Question : Comment gérer efficacement le cache avec Redis ?
+Réponse :
+ - Définir un TTL (Time-To-Live) approprié pour les clés en fonction de la fréquence de mise à jour des données.
+ - Éviter de surcharger Redis avec des données volumineuses inutiles ou peu demandées.
+ - Utiliser un mécanisme de mise à jour du cache (invalidation) lorsque les données sous-jacentes changent dans la base de données principale.
+ - Superviser l'utilisation de Redis pour éviter une saturation mémoire (Redis est in-memory).
+ 
+#### Question: Quelles sont les bonnes pratiques pour les clés Redis ?
+ Réponse :
+ - Utiliser des noms de clés clairs et structurés, par exemple, `app:module:resource:id`.
+ - Éviter les noms génériques comme `data` ou `cache`.
+ - Grouper les clés avec des préfixes pour faciliter la gestion et le nettoyage.
+ - Toujours définir un TTL pour éviter l'accumulation de clés obsolètes.
 
 
 ### Aspects professionnels à noter :

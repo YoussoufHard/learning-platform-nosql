@@ -1,5 +1,4 @@
 const { ObjectId } = require('mongodb');
-const db = require('../config/db');
 const mongoService = require('../services/mongoService');
 const redisService = require('../services/redisService');
 
@@ -13,16 +12,16 @@ async function createCourse(req, res) {
 
   try {
     // Vérifier si l'enseignant existe dans la base de données
-    const teacher = await mongoService.getTeacherById(teacherId);
+    const teacher = await mongoService.findOneById('teachers', teacherId);
     if (!teacher) {
       return res.status(404).json({ error: 'Teacher not found' });
     }
 
     // Créer le cours dans MongoDB
-    const course = await mongoService.createCourse({ name, description, teacherId });
+    const course = await mongoService.insertOne('courses', { name, description, teacherId });
 
-    // Optionnel: Stocker les informations du cours dans Redis pour la mise en cache
-    await redisService.cacheCourse(course._id, course);
+    // Stocker les informations du cours dans Redis pour la mise en cache
+    await redisService.cacheData(`course:${course._id}`, course, 3600);
 
     return res.status(201).json(course);
   } catch (error) {
@@ -31,12 +30,10 @@ async function createCourse(req, res) {
   }
 }
 
-// les autres fonctions du contrôleur (getAllCourses, getCourseById, updateCourse, deleteCourse) peuvent être ajoutées ici
-
-// Lire tous les cours
+// Fonction pour lire tous les cours
 async function getAllCourses(req, res) {
   try {
-    const courses = await mongoService.getAllCourses();
+    const courses = await mongoService.getAll('courses');
     return res.status(200).json(courses);
   } catch (error) {
     console.error('Error retrieving courses:', error);
@@ -44,14 +41,26 @@ async function getAllCourses(req, res) {
   }
 }
 
-// Lire un cours par ID
+// Fonction pour lire un cours par ID
 async function getCourseById(req, res) {
   const { id } = req.params;
+
   try {
-    const course = await mongoService.getCourseById(id);
+    // Vérifier dans le cache Redis
+    const cachedCourse = await redisService.getData(`course:${id}`);
+    if (cachedCourse) {
+      return res.status(200).json(JSON.parse(cachedCourse));
+    }
+
+    // Si non trouvé dans Redis, vérifier MongoDB
+    const course = await mongoService.findOneById('courses', id);
     if (!course) {
       return res.status(404).json({ error: 'Course not found' });
     }
+
+    // Mettre en cache le cours récupéré
+    await redisService.cacheData(`course:${id}`, course, 3600);
+
     return res.status(200).json(course);
   } catch (error) {
     console.error('Error retrieving course:', error);
@@ -59,15 +68,20 @@ async function getCourseById(req, res) {
   }
 }
 
-// Mettre à jour un cours
+// Fonction pour mettre à jour un cours
 async function updateCourse(req, res) {
   const { id } = req.params;
   const { name, description, teacherId } = req.body;
+
   try {
-    const updatedCourse = await mongoService.updateCourse(id, { name, description, teacherId });
+    const updatedCourse = await mongoService.updateOneById('courses', id, { name, description, teacherId });
     if (!updatedCourse) {
       return res.status(404).json({ error: 'Course not found' });
     }
+
+    // Mettre à jour le cache Redis
+    await redisService.cacheData(`course:${id}`, updatedCourse, 3600);
+
     return res.status(200).json(updatedCourse);
   } catch (error) {
     console.error('Error updating course:', error);
@@ -75,14 +89,19 @@ async function updateCourse(req, res) {
   }
 }
 
-// Supprimer un cours
+// Fonction pour supprimer un cours
 async function deleteCourse(req, res) {
   const { id } = req.params;
+
   try {
-    const result = await mongoService.deleteCourse(id);
+    const result = await mongoService.deleteOneById('courses', id);
     if (!result) {
       return res.status(404).json({ error: 'Course not found' });
     }
+
+    // Supprimer le cache Redis associé
+    await redisService.deleteData(`course:${id}`);
+
     return res.status(200).json({ message: 'Course deleted successfully' });
   } catch (error) {
     console.error('Error deleting course:', error);
@@ -93,11 +112,9 @@ async function deleteCourse(req, res) {
 // Fonction pour obtenir les statistiques des cours
 async function getCourseStats(req, res) {
   try {
-    // Exemple de statistiques: nombre total de cours
-    const totalCourses = await mongoService.getTotalCourses();
-    const averageRating = await mongoService.getAverageCourseRating();
+    const totalCourses = await mongoService.getTotalCount('courses');
+    const averageRating = await mongoService.getAverageField('courses', 'rating');
 
-    // Retourner les statistiques sous forme de réponse JSON
     return res.status(200).json({
       totalCourses,
       averageRating,
@@ -108,7 +125,6 @@ async function getCourseStats(req, res) {
   }
 }
 
-
 // Export des fonctions du contrôleur
 module.exports = {
   createCourse,
@@ -118,4 +134,3 @@ module.exports = {
   deleteCourse,
   getCourseStats
 };
-
