@@ -122,7 +122,7 @@ Réponse :
 
 # Gestion des Cours - Documentation de Test
 
-Ce fichier README décrit le processus de test pour les fonctionnalités de gestion des cours. Un fichier de test nommé `coursetest.html` a été créé pour vérifier les opérations CRUD (Créer, Lire, Mettre à jour, Supprimer) pour l'entité cours.
+Cette partie décrit le processus de test pour les fonctionnalités de gestion des cours. Un fichier de test nommé `coursetest.html` a été créé pour vérifier les opérations CRUD (Créer, Lire, Mettre à jour, Supprimer) pour l'entité cours.
 
 ## Aperçu test de mongoService.js avec course (controller et route)
 
