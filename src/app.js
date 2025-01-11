@@ -3,9 +3,9 @@ const config = require('./config/env');
 const db = require('./config/db');
 const cors = require('cors');  // Middleware CORS
 
-//importer les routes
+// Importer les routes
 const courseRoutes = require('./routes/courseRoutes');
-//const studentRoutes = require('./routes/studentRoutes');
+// const studentRoutes = require('./routes/studentRoutes'); // Décommenter si vous ajoutez des routes pour les étudiants
 
 const app = express();
 
@@ -21,23 +21,20 @@ async function connectDatabases() {
   }
 }
 
+// Fonction pour démarrer le serveur
 async function startServer() {
   try {
     // Initialiser les connexions aux bases de données
     await connectDatabases();
 
     // Configurer les middlewares
-    //middleware express.json() pour parser les requêtes en JSON
-    app.use(express.json());
-
+    app.use(express.json());  // Middleware express.json() pour parser les requêtes en JSON
     app.use(express.urlencoded({ extended: true }));  // Middleware pour analyser les formulaires URL-encodés
-    
-    // Middleware CORS 
-    app.use(cors());  // Autoriser les requêtes de n'importe quelle origine
+    app.use(cors());  // Middleware CORS pour autoriser les requêtes de n'importe quelle origine
 
     // Monter les routes
-    app.use('/courses', courseRoutes);
-   // app.use('/students', studentRoutes);
+    app.use('/courses', courseRoutes);  // Définir les routes pour les cours
+    // app.use('/students', studentRoutes); // Décommenter si vous ajoutez une gestion pour les étudiants
 
     // Démarrer le serveur
     app.listen(config.port, () => {
@@ -49,10 +46,15 @@ async function startServer() {
   }
 }
 
+// Gérer la fermeture du serveur
 process.on('SIGTERM', async () => {
   console.log('Shutting down server...');
-  await db.closeConnections();
-  process.exit(0);
+  await db.closeConnections();  // Fermer les connexions aux bases de données
+  process.exit(0);  // Terminer le processus
 });
 
+// Lancer le serveur
 startServer();
+
+// Exporter l'application pour les tests
+module.exports = app;  // Cette ligne permet de rendre `app` disponible pour les tests

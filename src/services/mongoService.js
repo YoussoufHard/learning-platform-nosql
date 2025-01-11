@@ -1,7 +1,6 @@
-
-
 const { ObjectId } = require('mongodb');
-const db = require('../config/db');
+const dbConnection = require('../config/db'); // Importer le module de connexion
+const { get } = require('../app');
 
 // Fonctions utilitaires pour MongoDB
 
@@ -11,11 +10,25 @@ const db = require('../config/db');
  * @param {string} id - L'ID du document.
  * @returns {Promise<Object|null>} Le document trouvé ou null.
  */
-async function findOneById(collection, id) {
+async function findOneById(collection, id) {  
   if (!ObjectId.isValid(id)) {
     throw new Error('Invalid ObjectId');
-  }
+  } 
+  await dbConnection.connectMongo(); // Assurer la connexion à MongoDB
+  const db = dbConnection.getDb(); // Obtenir l'instance de la base de données
   return await db.collection(collection).findOne({ _id: new ObjectId(id) });
+}
+
+/**
+ * Récupérer tous les documents d'une collection donnée.
+ * @param {string} collection - Le nom de la collection.
+ * @returns {Promise<Array>} Un tableau de documents.
+ */
+async function getAll(collection) {
+  await dbConnection.connectMongo(); // Assurer la connexion à MongoDB
+  const db = dbConnection.getDb(); // Obtenir l'instance de la base de données
+  const courses = await db.collection(collection).find().toArray(); // Récupérer tous les documents
+  return courses;
 }
 
 /**
@@ -25,8 +38,12 @@ async function findOneById(collection, id) {
  * @returns {Promise<Object>} Le document inséré.
  */
 async function insertOne(collection, data) {
+  await dbConnection.connectMongo(); // Assurer la connexion à MongoDB
+  const db = dbConnection.getDb(); // Obtenir l'instance de la base de données
   const result = await db.collection(collection).insertOne(data);
-  return result.ops[0];
+
+ // Retourner l'objet inséré en utilisant l'ID inséré (si nécessaire)
+ return { ...data, _id: result.insertedId };
 }
 
 /** 
@@ -40,10 +57,13 @@ async function updateOneById(collection, id, updates) {
   if (!ObjectId.isValid(id)) {
     throw new Error('Invalid ObjectId');
   }
+  await dbConnection.connectMongo(); // Assurer la connexion à MongoDB
+  const db = dbConnection.getDb(); // Obtenir l'instance de la base de données
   const result = await db
     .collection(collection)
     .findOneAndUpdate({ _id: new ObjectId(id) }, { $set: updates }, { returnDocument: 'after' });
-  return result.value;
+  
+  return result;
 }
 
 /**
@@ -56,43 +76,40 @@ async function deleteOneById(collection, id) {
   if (!ObjectId.isValid(id)) {
     throw new Error('Invalid ObjectId');
   }
+  await dbConnection.connectMongo(); // Assurer la connexion à MongoDB
+  const db = dbConnection.getDb(); // Obtenir l'instance de la base de données
   const result = await db.collection(collection).deleteOne({ _id: new ObjectId(id) });
   return result.deletedCount > 0;
 }
 
- /**
-   * Obtenir le nombre total de documents d'une collection
-   * @param {string} collectionName - Nom de la collection
-   * @returns {number} - Nombre total de documents
-   */
- async function getTotalCount(collectionName) {
-  try {
-    const collection = db.collection(collectionName);
-    return await collection.countDocuments();
-  } catch (error) {
-    console.error(`Error counting documents in ${collectionName}:`, error);
-    throw error;
-  }
+/**
+ * Obtenir le nombre total de documents d'une collection.
+ * @param {string} collectionName - Nom de la collection.
+ * @returns {Promise<number>} Nombre total de documents.
+ */
+async function getTotalCount(collectionName) {
+  await dbConnection.connectMongo(); // Assurer la connexion à MongoDB
+  const db = dbConnection.getDb(); // Obtenir l'instance de la base de données
+  const collection = db.collection(collectionName);
+  return await collection.countDocuments();
 }
 
 /**
- * Calculer la moyenne d'un champ dans une collection
- * @param {string} collectionName - Nom de la collection
- * @param {string} fieldName - Nom du champ
- * @returns {number|null} - Moyenne du champ ou null si aucun document
+ * Calculer la moyenne d'un champ dans une collection.
+ * @param {string} collectionName - Nom de la collection.
+ * @param {string} fieldName - Nom du champ.
+ * @returns {Promise<number|null>} Moyenne du champ ou null si aucun document.
  */
 async function getAverageField(collectionName, fieldName) {
-  try {
-    const collection = db.collection(collectionName);
-    const result = await collection.aggregate([
-      { $group: { _id: null, avgField: { $avg: `$${fieldName}` } } },
-    ]).toArray();
-    return result.length > 0 ? result[0].avgField : null;
-  } catch (error) {
-    console.error(`Error calculating average for field ${fieldName} in ${collectionName}:`, error);
-    throw error;
-  }
+  await dbConnection.connectMongo(); // Assurer la connexion à MongoDB
+  const db = dbConnection.getDb(); // Obtenir l'instance de la base de données
+  const collection = db.collection(collectionName);
+  const result = await collection.aggregate([
+    { $group: { _id: null, avgField: { $avg: `$${fieldName}` } } },
+  ]).toArray();
+  return result.length > 0 ? result[0].avgField : null;
 }
+
 // Export des services
 module.exports = {
   findOneById,
@@ -100,35 +117,6 @@ module.exports = {
   updateOneById,
   deleteOneById,
   getTotalCount,
-  getAverageField
-};
-
-
-
-
-
-
-const db = require('../config/db'); // Votre connexion à MongoDB
-
-// Fonction pour récupérer le nombre total de cours
-async function getTotalCourses() {
-  const collection = db.collection('courses'); // Utilisez le nom de votre collection
-  const count = await collection.countDocuments();
-  return count;
-}
-
-// Fonction pour récupérer la moyenne des évaluations des cours (par exemple, si vous avez un champ 'rating')
-async function getAverageCourseRating() {
-  const collection = db.collection('courses');
-  const avg = await collection.aggregate([
-    { $group: { _id: null, averageRating: { $avg: "$rating" } } }
-  ]).toArray();
-
-  return avg.length > 0 ? avg[0].averageRating : 0; // Retourne 0 si aucun cours n'a de note
-}
-
-module.exports = {
-  getTotalCourses,
-  getAverageCourseRating,
-  // Ajoutez les autres fonctions existantes ici
+  getAverageField,
+  getAll,
 };

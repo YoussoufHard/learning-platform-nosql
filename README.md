@@ -118,6 +118,29 @@ Réponse :
  - Grouper les clés avec des préfixes pour faciliter la gestion et le nettoyage.
  - Toujours définir un TTL pour éviter l'accumulation de clés obsolètes.
 
+---
+
+# Gestion des Cours - Documentation de Test
+
+Ce fichier README décrit le processus de test pour les fonctionnalités de gestion des cours. Un fichier de test nommé `coursetest.html` a été créé pour vérifier les opérations CRUD (Créer, Lire, Mettre à jour, Supprimer) pour l'entité cours.
+
+## Aperçu test de mongoService.js avec course (controller et route)
+
+Le fichier `coursetest.html` sert d'interface simple pour tester toutes les fonctionnalités liées à la gestion des cours. Le processus de test garantit que chaque opération fonctionne comme prévu et interagit correctement avec le back-end.
+
+### Fonctionnalités testées
+
+- **Création** : Ajouter un nouveau cours avec les champs nom et durée.
+- **Lecture** : Récupérer et afficher tous les cours dans un format structuré.
+- **Mise à jour** : Modifier les détails d'un cours existant par ID.
+- **Suppression** : Supprimer un cours par ID.
+
+### Voici la capture :
+
+![Capture d'écran testCours](/img/imagetestCours.png)
+
+
+
 
 ### Aspects professionnels à noter :
 - Utilisation des variables d'environnement pour la configuration

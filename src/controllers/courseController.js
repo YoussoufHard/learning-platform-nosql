@@ -4,21 +4,16 @@ const redisService = require('../services/redisService');
 
 // Fonction pour créer un cours
 async function createCourse(req, res) {
-  const { name, description, teacherId } = req.body;
+  const { name, duration } = req.body;
 
-  if (!name || !description || !teacherId) {
-    return res.status(400).json({ error: 'All fields are required: name, description, and teacherId' });
+  // Vérification des champs requis
+  if (!name || !duration) {
+    return res.status(400).json({ error: 'All fields are required: name and duration' });
   }
 
   try {
-    // Vérifier si l'enseignant existe dans la base de données
-    const teacher = await mongoService.findOneById('teachers', teacherId);
-    if (!teacher) {
-      return res.status(404).json({ error: 'Teacher not found' });
-    }
-
     // Créer le cours dans MongoDB
-    const course = await mongoService.insertOne('courses', { name, description, teacherId });
+    const course = await mongoService.insertOne('courses', { name, duration });
 
     // Stocker les informations du cours dans Redis pour la mise en cache
     await redisService.cacheData(`course:${course._id}`, course, 3600);
@@ -47,7 +42,7 @@ async function getCourseById(req, res) {
 
   try {
     // Vérifier dans le cache Redis
-    const cachedCourse = await redisService.getData(`course:${id}`);
+    const cachedCourse = await redisService.getCachedData(`course:${id}`);
     if (cachedCourse) {
       return res.status(200).json(JSON.parse(cachedCourse));
     }
@@ -71,10 +66,10 @@ async function getCourseById(req, res) {
 // Fonction pour mettre à jour un cours
 async function updateCourse(req, res) {
   const { id } = req.params;
-  const { name, description, teacherId } = req.body;
+  const { name, duration } = req.body;
 
   try {
-    const updatedCourse = await mongoService.updateOneById('courses', id, { name, description, teacherId });
+    const updatedCourse = await mongoService.updateOneById('courses', id, { name, duration });
     if (!updatedCourse) {
       return res.status(404).json({ error: 'Course not found' });
     }
@@ -100,7 +95,7 @@ async function deleteCourse(req, res) {
     }
 
     // Supprimer le cache Redis associé
-    await redisService.deleteData(`course:${id}`);
+    await redisService.deleteCache(`course:${id}`);
 
     return res.status(200).json({ message: 'Course deleted successfully' });
   } catch (error) {
