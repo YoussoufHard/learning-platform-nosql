@@ -74,6 +74,33 @@ La gestion du démarrage de l'application se fait via la fonction `startServer()
 
 Cette approche assure que l'application ne démarre que lorsque toutes les connexions nécessaires sont établies et que les routes sont correctement configurées. Si une erreur survient, elle est loggée et l'application s'arrête proprement, empêchant ainsi un démarrage incorrect.
 
+### Capture d'ecran montrant que la connection à la base de données mongdb marche bien de meme pour redis
+![Capture test connectivité au database](img/connection.png)
+
+### Fichier : `courseController.js`
+
+#### Question : Quelle est la différence entre un contrôleur et une route ?
+- Route : La route définit l'URL de la ressource ainsi que la méthode HTTP (GET, POST, PUT, DELETE, etc.) qui doit être utilisée pour interagir avec la ressource. Elle est responsable de l'écoute des requêtes envoyées par le client.
+- Contrôleur : Le contrôleur est un fichier ou une fonction qui contient la logique nécessaire pour répondre aux requêtes envoyées par les routes. Il traite les données, interagit avec la base de données, applique des règles métiers, et renvoie la réponse appropriée au client. En somme, le contrôleur contient la logique métier qui est invoquée via les routes.
+
+#### Question : Pourquoi séparer la logique métier des routes ?
+Séparer la logique métier des routes permet de maintenir une architecture plus propre et modulaire. Cela présente plusieurs avantages :
+
+- Lisibilité : La logique métier étant séparée, le fichier de la route reste simple et concis, facilitant sa lecture et sa compréhension.
+- Réutilisabilité : Les contrôleurs peuvent être réutilisés dans plusieurs routes ou tests sans dupliquer le code.
+- Testabilité : Tester la logique métier devient plus facile, car elle est séparée des préoccupations liées aux requêtes HTTP.
+- Maintenance : Lorsque la logique métier est centralisée, toute modification peut être faite dans un seul endroit, simplifiant ainsi la maintenance.
+
+---
+
+### Fichier : `courseRoutes.js`
+
+#### Pourquoi séparer les routes dans différents fichiers ?
+Séparer les routes dans différents fichiers permet de maintenir une structure de code claire et modulaire. Chaque fichier peut être responsable d'un ensemble logique de routes (par exemple, un fichier pour les cours, un autre pour les utilisateurs). Cela améliore la lisibilité du code et facilite la maintenance. En cas de besoin d'ajouter ou de modifier des routes, on peut intervenir uniquement dans le fichier concerné, sans risquer de toucher à d'autres parties du projet.
+
+#### Comment organiser les routes de manière cohérente ?
+Les routes doivent être organisées selon les ressources qu'elles manipulent. Par exemple, dans le fichier `courseRoutes.js`, toutes les routes relatives aux cours (comme la création d'un cours, la récupération des détails d'un cours ou les statistiques) sont groupées. Il est aussi conseillé de suivre une convention de nommage cohérente pour les URL et de les organiser selon des groupes logiques. Cela permet de créer une structure uniforme et d'éviter des conflits entre les différentes routes de l'application.
+
 
 
 
