@@ -5,15 +5,26 @@ const config = require('./env');
 let mongoClient, redisClient, db;
 
 // Fonction pour se connecter à MongoDB
+// Fonction pour se connecter à MongoDB
 async function connectMongo() {
   try {
-    // Connexion à MongoDB avec gestion des erreurs et des retries
-    mongoClient = new MongoClient(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    const mongoUri = process.env.MONGODB_URI;
+    const dbName = process.env.MONGODB_DB_NAME;
+
+    if (!mongoUri || !dbName) {
+      throw new Error('MONGODB_URI or MONGODB_DB_NAME is not defined in environment variables');
+    }
+
+    // Construire la chaîne complète de connexion MongoDB
+      // Connexion à MongoDB sans les options obsolètes
+      mongoClient = new MongoClient(mongoUri);
+      await mongoClient.connect();
+ db = mongoClient.db(dbName); // Sélection de la base de données
     await mongoClient.connect();
-    db = mongoClient.db(config.MONGODB_DB_NAME);
-    console.log('Connexion à MongoDB réussie');
+    db = mongoClient.db(dbName); // Sélection de la base de données
+    console.log(`Connexion à MongoDB réussie (Base de données : ${dbName})`);
   } catch (error) {
-    console.error('Erreur de connexion à MongoDB:', error);
+    console.error('Erreur de connexion à MongoDB:', error.message);
     // Implémentation de retries sur la connexion
     setTimeout(connectMongo, 5000); // Nouvelle tentative après 5 secondes
   }
