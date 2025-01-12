@@ -1,19 +1,19 @@
 const { ObjectId } = require('mongodb');
 const dbConnection = require('../config/db'); // Importer le module de connexion
-const { get } = require('../app');
+// const { get } = require('../app');
 
 // Fonctions utilitaires pour MongoDB
 
 /**
  * Trouver un document par ID dans une collection donnée.
  * @param {string} collection - Le nom de la collection.
- * @param {string} id - L'ID du document.
+ * @param {string} id - L'ID du document. 
  * @returns {Promise<Object|null>} Le document trouvé ou null.
  */
 async function findOneById(collection, id) {  
   if (!ObjectId.isValid(id)) {
     throw new Error('Invalid ObjectId');
-  } 
+  }
   await dbConnection.connectMongo(); // Assurer la connexion à MongoDB
   const db = dbConnection.getDb(); // Obtenir l'instance de la base de données
   return await db.collection(collection).findOne({ _id: new ObjectId(id) });

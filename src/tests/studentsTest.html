@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Gestion Étudiants</title>
+  <!-- Inclusion de Bootstrap pour le design -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <script>
+    // Fonction pour créer un étudiant
+    async function createStudent() {
+      const response = await fetch('/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('firstName').value,
+          lastName: document.getElementById('lastName').value,
+          email: document.getElementById('email').value,
+          birthday: document.getElementById('dateOfBirth').value,
+          gender: document.getElementById('gender').value
+        })
+      });
+      const data = await response.json();
+      document.getElementById('result').innerHTML = `<p>Étudiant créé : ${data.firstName} ${data.lastName}</p>`;
+    }
+
+    // Fonction pour obtenir tous les étudiants
+    async function getAllStudents() {
+      const response = await fetch('/students');
+      const data = await response.json();
+      let studentList = '<ul>';
+      data.forEach(student => {
+        studentList += `<li>${student.firstName} ${student.lastName} - ${student.email}</li>`;
+      });
+      studentList += '</ul>';
+      document.getElementById('result').innerHTML = studentList;
+    }
+
+    // Fonction pour mettre à jour un étudiant
+    async function updateStudent() {
+      const studentId = document.getElementById('studentId').value;
+      const response = await fetch(`/students/${studentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName: document.getElementById('newFirstName').value })
+      });
+      const data = await response.json();
+      document.getElementById('result').innerHTML = `<p>Étudiant mis à jour : ${data.firstName}</p>`;
+    }
+
+    // Fonction pour supprimer un étudiant
+    async function deleteStudent() {
+      const studentId = document.getElementById('studentId').value;
+      const response = await fetch(`/students/${studentId}`, { method: 'DELETE' });
+      const data = await response.json();
+      document.getElementById('result').innerHTML = `<p>Étudiant supprimé : ${data.message}</p>`;
+    }
+  </script>
+</head>
+<body>
+  <div class="container mt-4">
+    <h1 class="text-center mb-4">Gestion des Étudiants</h1>
+    
+    <!-- Formulaire pour ajouter un étudiant -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Créer un étudiant</h5>
+        <form>
+          <div class="form-group">
+            <label for="firstName">Prénom</label>
+            <input type="text" class="form-control" id="firstName" placeholder="Prénom" required>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Nom</label>
+            <input type="text" class="form-control" id="lastName" placeholder="Nom" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <label for="dateOfBirth">Date de naissance</label>
+            <input type="date" class="form-control" id="dateOfBirth" required>
+          </div>
+          <div class="form-group">
+            <label for="gender">Genre</label>
+            <select class="form-control" id="gender">
+              <option value="male">Homme</option>
+              <option value="female">Femme</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-primary" onclick="createStudent()">Créer l'étudiant</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Bouton pour récupérer tous les étudiants -->
+    <button class="btn btn-info mb-4" onclick="getAllStudents()">Voir tous les étudiants</button>
+
+    <!-- Formulaire pour mettre à jour un étudiant -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Mettre à jour un étudiant</h5>
+        <form>
+          <div class="form-group">
+            <label for="studentId">ID de l'étudiant</label>
+            <input type="text" class="form-control" id="studentId" placeholder="ID de l'étudiant" required>
+          </div>
+          <div class="form-group">
+            <label for="newFirstName">Nouveau prénom</label>
+            <input type="text" class="form-control" id="newFirstName" placeholder="Nouveau prénom" required>
+          </div>
+          <button type="button" class="btn btn-warning" onclick="updateStudent()">Mettre à jour l'étudiant</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Formulaire pour supprimer un étudiant -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Supprimer un étudiant</h5>
+        <form>
+          <div class="form-group">
+            <label for="studentId">ID de l'étudiant</label>
+            <input type="text" class="form-control" id="studentId" placeholder="ID de l'étudiant" required>
+          </div>
+          <button type="button" class="btn btn-danger" onclick="deleteStudent()">Supprimer l'étudiant</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Résultats des actions -->
+    <div id="result" class="mt-4"></div>
+  </div>
+
+  <!-- Inclusion des scripts Bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

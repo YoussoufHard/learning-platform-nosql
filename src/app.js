@@ -6,6 +6,7 @@ const cors = require('cors');  // Middleware CORS
 // Importer les routes
 const courseRoutes = require('./routes/courseRoutes');
 const studentRoutes = require('./routes/studentRoutes');
+const enrollmentRoutes = require('./routes/enrollmentRoutes');
 
 const app = express();
 
@@ -35,6 +36,7 @@ async function startServer() {
     // Monter les routes
     app.use('/courses', courseRoutes);  // Définir les routes pour les cours
     app.use('/students', studentRoutes); // Routes pour les étudiants
+    app.use('/enrollments', enrollmentRoutes); // Routes pour les inscriptions
 
     // Démarrer le serveur
     app.listen(config.port, () => {

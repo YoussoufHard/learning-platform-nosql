@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Final - Plateforme d'Apprentissage</title>
+  <!-- Inclusion de Bootstrap pour le design -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <script>
+    // // Simuler la récupération des statistiques (pour les tests)
+    // async function getStats(type) {
+    //   let statsMessage = '';
+    //   if (type === 'student') {
+    //     statsMessage = 'Statistiques des Étudiants: 500 étudiants inscrits, 80% complétés.';
+    //   } else if (type === 'enrollment') {
+    //     statsMessage = 'Statistiques des Inscriptions: 300 inscriptions cette année.';
+    //   } else if (type === 'course') {
+    //     statsMessage = 'Statistiques des Cours: 20 cours offerts, 5 en cours.';
+    //   }
+    //   document.getElementById('statsResult').innerHTML = `<div class="alert alert-info" role="alert">${statsMessage}</div>`;
+    // }
+
+    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Fonction pour récupérer les statistiques depuis l'API
+    async function getStats(type) {
+      try {
+        let response;
+        if (type === 'student') {
+          response = await fetch('stats/student');
+        } else if (type === 'enrollment') {
+          response = await fetch('/stats/enrollment');
+        } else if (type === 'course') {
+          response = await fetch('/stats/course');
+        }
+        
+        // Vérifier si la réponse est valide
+        if (response.ok) {
+          const data = await response.json();
+          let statsMessage = '';
+          
+          if (type === 'student') {
+            statsMessage = `Statistiques des Étudiants: ${data.totalStudents} étudiants inscrits.`;
+          } else if (type === 'enrollment') {
+            statsMessage = `Statistiques des Inscriptions: ${data.totalEnrollments} inscriptions, Cours le plus populaire: ${data.mostPopularCourse._id} avec ${data.mostPopularCourse.count} inscriptions.`;
+          } else if (type === 'course') {
+            statsMessage = `Statistiques des Cours: ${data.totalCourses} cours disponibles, Moyenne des évaluations: ${data.averageRating.toFixed(2)}.`;
+          }
+          
+          document.getElementById('statsResult').innerHTML = `<div class="alert alert-info" role="alert">${statsMessage}</div>`;
+        } else {
+          throw new Error('Erreur lors de la récupération des statistiques.');
+        }
+      } catch (error) {
+        // Affichage d'un message par défaut en cas d'erreur ou de données manquantes
+        console.error('Erreur lors de la récupération des statistiques:', error);
+        document.getElementById('statsResult').innerHTML = `<div class="alert alert-warning" role="alert">Les statistiques ne sont pas disponibles pour le moment.</div>`;
+      }
+    }
+  
+  </script>
+</head>
+<body class="bg-light">
+
+  <div class="container mt-5">
+    <div class="text-center mb-5">
+      <h1 class="display-4 font-weight-bold">Plateforme d'Apprentissage</h1>
+      <p class="lead">Testez les fonctionnalités principales de notre application</p>
+    </div>
+
+    <!-- Section 1: Étudiant, Inscription, Cours - Alignement et largeur égale -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card shadow-lg h-100 d-flex flex-column justify-content-between">
+          <div class="card-body text-center">
+            <h5 class="card-title">Gestion des Étudiants</h5>
+            <p class="card-text">Créez et gérez les étudiants dans la plateforme.</p>
+          </div>
+          <div class="card-footer text-center">
+            <a href="studentsTest.html" class="btn btn-primary mt-3">Test Étudiant</a>
+            <button class="btn btn-info mt-3" onclick="getStats('student')">Voir Statistiques</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Inscription -->
+      <div class="col-md-4">
+        <div class="card shadow-lg h-100 d-flex flex-column justify-content-between">
+          <div class="card-body text-center">
+            <h5 class="card-title">Gestion des Inscriptions</h5>
+            <p class="card-text">Inscrivez des étudiants à vos cours.</p>
+          </div>
+          <div class="card-footer text-center">
+            <a href="enrollTest.html" class="btn btn-success mt-3">Test Inscription</a>
+            <button class="btn btn-info mt-3" onclick="getStats('enrollment')">Voir Statistiques</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Cours -->
+      <div class="col-md-4">
+        <div class="card shadow-lg h-100 d-flex flex-column justify-content-between">
+          <div class="card-body text-center">
+            <h5 class="card-title">Gestion des Cours</h5>
+            <p class="card-text">Créez et gérez vos cours pour les étudiants.</p>
+          </div>
+          <div class="card-footer text-center">
+            <a href="coursesTest.html" class="btn btn-danger mt-3">Test Cours</a>
+            <button class="btn btn-info mt-3" onclick="getStats('course')">Voir Statistiques</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Résultats des statistiques -->
+    <div id="statsResult" class="text-center mb-4">
+      <!-- Les statistiques seront affichées ici -->
+    </div>
+
+  </div>
+
+  <!-- Inclusion des scripts Bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

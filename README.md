@@ -3,7 +3,7 @@
 
 
 ## Description
-Ce projet a pour objectif de créer une API backend pour une plateforme d'apprentissage en ligne en utilisant une base de données NoSQL. L'API permet de gérer des cours, des utilisateurs, et d'autres fonctionnalités liées à la plateforme.  
+Ce projet a pour objectif de créer une API backend pour une plateforme d'apprentissage en ligne en utilisant une base de données NoSQL. L'API permet de gérer des cours, les etudiants, et d'autres fonctionnalités liées à la plateforme.  
 L'accent est mis sur une organisation professionnelle du code, l'utilisation de bonnes pratiques et la gestion des données avec MongoDB et Redis.
 
 ### Fonctionnalités principales :
@@ -72,6 +72,7 @@ La gestion du démarrage de l'application se fait via la fonction `startServer()
 Cette approche assure que l'application ne démarre que lorsque toutes les connexions nécessaires sont établies et que les routes sont correctement configurées. Si une erreur survient, elle est loggée et l'application s'arrête proprement, empêchant ainsi un démarrage incorrect.
 
 ### Capture d'ecran montrant que la connection à la base de données mongdb marche bien de même pour redis
+
 ![Capture test connectivité au database](img/connection.png)
 
 ### Fichier : `courseController.js`
@@ -139,3 +140,193 @@ Le fichier `coursetest.html` sert d'interface simple pour tester toutes les fonc
 ### Voici la capture :
 
 ![Capture d'écran testCours](/img/imagetestCours.png)
+
+---
+
+# Ajout des gestions Étudiant et Inscription
+
+Dans le cadre de l'amélioration de la plateforme d'apprentissage en ligne, deux nouvelles fonctionnalités ont été ajoutées : 
+
+1. **Gestion des étudiants**  
+2. **Gestion des inscriptions**  
+
+Ces ajouts visent à rendre l'application plus complète et adaptée aux besoins d'une plateforme éducative moderne.
+
+---
+
+## Nouvelles fonctionnalités
+
+### 1. Gestion des étudiants  
+- **Objectif** : Permettre de gérer les informations des étudiants, telles que leurs noms, emails, dates de naissance et genres.  
+- **Pourquoi ?** : Les étudiants étant au cœur de la plateforme, leur gestion est essentielle pour suivre leur parcours et centraliser les données nécessaires.
+
+### 2. Gestion des inscriptions  
+- **Objectif** : Relier les étudiants aux cours via une gestion des inscriptions.  
+- **Pourquoi ?** : Associer les étudiants aux cours suivis est une fonctionnalité indispensable pour suivre leur progression et leur engagement.
+
+---
+
+### Impact sur la plateforme
+
+- **Complétude** : Ces deux gestions complètent le système en reliant les cours aux utilisateurs finaux.  
+- **Cohérence** : La plateforme devient un véritable écosystème où toutes les entités sont interconnectées.  
+- **Extensibilité** : Ces bases permettent d'ajouter des fonctionnalités futures comme la gestion des paiements, des résultats ou des rapports.  
+
+---
+
+Ces ajouts renforcent l’utilité et la pertinence de la plateforme, en en faisant un outil réellement adapté à l’apprentissage en ligne. 🚀
+
+## Aperçu de test des nouvelles fonctionnalités
+
+Les fichiers `studentsTest.html` et `enrollmentsTest.html` servent d'interface simple pour tester toutes les fonctionnalités liées à la gestion respective des étudiants et des inscriptions. Le processus de test garantit que chaque opération fonctionne comme prévu et interagit correctement avec le back-end.
+
+### Fonctionnalités testées
+
+- **Création** : Ajouter un nouveau cours avec les champs nom et durée.
+- **Lecture** : Récupérer et afficher tous les cours dans un format structuré.
+- **Mise à jour** : Modifier les détails d'un cours existant par ID.
+- **Suppression** : Supprimer un cours par ID.
+
+### Voici la capture des test :
+
+![Capture d'écran teststudent](/img/imageteststudent.png)
+![Capture d'écran testEnroll](/img/imagetestenroll.png)
+
+---
+
+# Test Final - API Backend Plateforme d'Apprentissage
+
+## Description
+Le **test final** présente une interface qui permet de tester ces fonctionnalités et d'afficher des statistiques issues de la base de données pour les **étudiants**, **inscriptions**, et **cours**.
+
+## Fonctionnalités
+1. **Gestion des Étudiants** : Ajouter, afficher, et gérer les étudiants.
+2. **Gestion des Inscriptions** : Inscrire les étudiants à des cours.
+3. **Gestion des Cours** : Créer et gérer des cours pour les étudiants.
+4. **Affichage des Statistiques** : Afficher les statistiques des étudiants, des inscriptions, et des cours récupérées depuis la base de données.
+
+## Prérequis
+- **Node.js** et **npm** (Node Package Manager) doivent être installés sur votre machine.
+- **MongoDB** : La base de données NoSQL utilisée pour stocker les informations des étudiants, inscriptions, et cours.
+- **Redis** : Pour le cache des données de l'application, vous devez avoir Redis installé et configuré.
+
+### Installation de Redis
+Pour installer Redis, vous pouvez suivre les étapes decrit en bas ou suivre le lien suivant en fonction de votre système d'exploitation :[lien redis](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-windows/)
+
+#### Sous Linux (Ubuntu)
+```bash
+sudo apt update
+sudo apt install redis-server
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+```
+
+#### Sous macOS
+Si vous utilisez Homebrew, vous pouvez installer Redis avec la commande suivante :
+```bash
+brew install redis
+```
+
+#### Sous Windows
+Vous pouvez télécharger et installer Redis via ce lien [Redis pour Windows](https://github.com/microsoftarchive/redis/releases) ou utiliser WSL (Windows Subsystem for Linux).
+
+### Comment installer et lancer le projet
+
+1. **Cloner le projet** :
+   Clonez le dépôt GitHub sur votre machine locale.
+
+   ```bash
+   git clone https://github.com/YoussoufHard/learning-platform-nosql.git
+   cd plateforme-apprentissage
+   ```
+
+2. **Installer les dépendances** :
+   Exécutez la commande suivante pour installer les dépendances nécessaires avec npm.
+
+   ```bash
+   npm install
+   ```
+
+3. **Configurer la base de données MongoDB et Redis** :
+   - **MongoDB** : Assurez-vous d'avoir une instance MongoDB en cours d'exécution localement ou sur un serveur distant.
+   - **Redis** : Configurez Redis en suivant les instructions ci-dessus et vérifiez que le service est bien actif.
+
+4. **Configurer les variables d'environnement** :
+   Dans le fichier `.env`, assurez-vous de configurer les informations de connexion à MongoDB et Redis :
+
+   ```
+   MONGODB_URI=mongodb://localhost:27017/plateforme-apprentissage
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
+   ```
+
+5. **Lancer l'application Backend** :
+   Pour démarrer l'application, exécutez :
+
+   ```bash
+   npm start
+   ```
+
+   L'application sera accessible à l'adresse [http://localhost:3000](http://localhost:3000).
+
+### Structure du projet
+
+Voici la structure du projet pour vous aider à comprendre comment le projet est organisé :
+
+```
+LEARNING-PLATFORM-NODEJS/
+├── img/                          # Dossier pour les images c a d les capture utilisé dans le readme.md
+├── node_modules/                 # Modules Node.js installés
+├── src/                          # Dossier principal du code source
+│   ├── config/                   # Configuration de la base de données et environnement
+│   │   ├── db.js                 # Configuration et connexion à la base de données MongoDB
+│   │   └── env.js                # Variables d'environnement
+│   ├── controllers/              # Dossier des contrôleurs
+│   │   ├── courseController.js   # Logique métier pour les cours
+│   │   ├── enrollmentController.js # Logique métier pour les inscriptions
+│   │   └── studentController.js  # Logique métier pour les étudiants
+│   ├── routes/                   # Dossier des routes API
+│   │   ├── courseRoutes.js       # Routes pour les cours
+│   │   ├── enrollmentRoutes.js   # Routes pour les inscriptions
+│   │   └── studentRoutes.js      # Routes pour les étudiants
+│   ├── services/                 # Dossier des services
+│   │   ├── mongoService.js       # Services liés à la base de données MongoDB
+│   │   └── redisService.js       # Services liés à Redis
+│   ├── tests/                    # Tests front-end pour l'interface utilisateur
+│   │   ├── coursesTest.html      # Test pour les fonctionnalités des cours
+│   │   ├── enrollTest.html       # Test pour les fonctionnalités des inscriptions
+│   │   ├── finalTest.html        # Test global de la plateforme
+│   │   └── studentsTest.html     # Test pour les fonctionnalités des étudiants
+│   └── testAPI.js                # Test des API via JavaScript
+├── app.js                        # Point d'entrée principal de l'application
+├── .env                          # Variables d'environnement
+├── .gitignore                    # Fichiers à ignorer par Git
+├── package.json                  # Fichier de configuration npm pour les dépendances
+├── package-lock.json             # Fichier de verrouillage des dépendances npm
+└── README.md                     # Documentation du projet
+
+```
+
+### Tests et une capture de son interface
+
+Pour tester l'application, vous pouvez ouvrir le fichier `finalTest.html` dans un navigateur, qui contient des boutons pour afficher les statistiques des étudiants, des inscriptions, et des cours. Les tests se font en cliquant sur les boutons pour voir les résultats dynamiques provenant de l'API.
+
+![TestFinal](img/imagefinaltest.png)
+
+### Conclusion
+
+Ce projet vous permet de tester efficacement les fonctionnalités d'une plateforme d'apprentissage en ligne. Grâce à la gestion dynamique des étudiants, des inscriptions, et des cours, ainsi que l'affichage de statistiques détaillées avec l'optimisation de Redis pour le cache, ce système pourrait être un excellent point de départ pour une plateforme d'apprentissage complète et évolutive.
+
+## A propos de l'auteur
+
+Ce projet a été développé par :
+
+- **Nom** : TANGARA YOUSSOUF
+- **GitHub** : [ProfilGitHub](https://github.com/YoussoufHard)
+- **LinkedIn** : [ProfilLinkedIn](www.linkedin.com/in/youssouf-t-422151292)
+
+Pour toute question ou suggestion, veuillez utiliser la section des issues sur le dépôt GitHub
+
+---
+
+## ***NB*** Il reste quelque ajustement à faire pour que tout execution marche sans erreur 
