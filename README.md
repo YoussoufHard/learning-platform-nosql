@@ -210,7 +210,7 @@ Le **test final** présente une interface qui permet de tester ces fonctionnalit
 - **Redis** : Pour le cache des données de l'application, vous devez avoir Redis installé et configuré.
 
 ### Installation de Redis
-Pour installer Redis, vous pouvez suivre les étapes decrit en bas ou suivre le lien suivant en fonction de votre système d'exploitation :[lien redis](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-windows/)
+Pour installer Redis, vous pouvez suivre les étapes decrit en bas ou suivre le lien suivant en fonction de votre système d'exploitation :[lien d'installation redis](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-windows/)
 
 #### Sous Linux (Ubuntu)
 ```bash
@@ -322,7 +322,7 @@ Ce projet a été développé par :
 
 - **Nom** : TANGARA YOUSSOUF
 - **GitHub** : [ProfilGitHub](https://github.com/YoussoufHard)
-- **LinkedIn** : [ProfilLinkedIn](www.linkedin.com/in/youssouf-t-422151292)
+- **LinkedIn** : [ProfilLinkedIn](https://www.linkedin.com/in/youssouf-t-422151292)
 
 Pour toute question ou suggestion, veuillez utiliser la section des issues sur le dépôt GitHub
 
