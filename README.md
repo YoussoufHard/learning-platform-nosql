@@ -196,7 +196,6 @@ Les fichiers `studentsTest.html` et `enrollmentsTest.html` servent d'interface s
 
 # Test Final - API Backend Plateforme d'Apprentissage
 
-## Description
 Le **test final** présente une interface qui permet de tester ces fonctionnalités et d'afficher des statistiques issues de la base de données pour les **étudiants**, **inscriptions**, et **cours**.
 
 ## Fonctionnalités
