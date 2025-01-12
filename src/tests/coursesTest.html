@@ -3,65 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Cours</title>
-  <!-- Inclusion de Bootstrap pour le design -->
+  <title>Gestion des Cours</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <script>
+    const apiUrl = '/courses';
+
     // Fonction pour créer un cours
     async function createCourse() {
-      const response = await fetch('/courses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: document.getElementById('courseName').value,
-          description: document.getElementById('courseDescription').value,
-          duration: document.getElementById('courseDuration').value
-        })
-      });
-      const data = await response.json();
-      document.getElementById('result').innerHTML = `<p>Cours créé: ${data.name}</p>`;
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('courseName').value,
+            duration: document.getElementById('courseDuration').value,
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          document.getElementById('result').innerHTML = `<p class="text-success">Cours créé : ${data.name}</p>`;
+        } else {
+          document.getElementById('result').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     // Fonction pour récupérer tous les cours
     async function getAllCourses() {
-      const response = await fetch('/courses');
-      const data = await response.json();
-      let courseList = '<ul>';
-      data.forEach(course => {
-        courseList += `<li>Cours: ${course.name} - Durée: ${course.duration} - Description: ${course.description}</li>`;
-      });
-      courseList += '</ul>';
-      document.getElementById('result').innerHTML = courseList;
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        if (response.ok) {
+          let courseList = '<ul>';
+          data.forEach(course => {
+            courseList += `<li>Cours : ${course.name} - Durée : ${course.duration}</li>`;
+          });
+          courseList += '</ul>';
+          document.getElementById('result').innerHTML = courseList;
+        } else {
+          document.getElementById('result').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     // Fonction pour mettre à jour un cours
     async function updateCourse() {
       const courseId = document.getElementById('courseId').value;
-      const response = await fetch(`/courses/${courseId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: document.getElementById('newCourseName').value,
-          description: document.getElementById('newCourseDescription').value,
-          duration: document.getElementById('newCourseDuration').value
-        })
-      });
-      const data = await response.json();
-      document.getElementById('result').innerHTML = `<p>Cours mis à jour: ${data.name}</p>`;
+      try {
+        const response = await fetch(`${apiUrl}/${courseId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('newCourseName').value,
+            duration: document.getElementById('newCourseDuration').value,
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          document.getElementById('result').innerHTML = `<p class="text-success">Cours mis à jour : ${data.name}</p>`;
+        } else {
+          document.getElementById('result').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     // Fonction pour supprimer un cours
     async function deleteCourse() {
       const courseId = document.getElementById('courseId').value;
-      const response = await fetch(`/courses/${courseId}`, { method: 'DELETE' });
-      const data = await response.json();
-      document.getElementById('result').innerHTML = `<p>Cours supprimé: ${data.name}</p>`;
+      try {
+        const response = await fetch(`${apiUrl}/${courseId}`, {
+          method: 'DELETE',
+        });
+        const data = await response.json();
+        if (response.ok) {
+          document.getElementById('result').innerHTML = `<p class="text-success">${data.message}</p>`;
+        } else {
+          document.getElementById('result').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
   </script>
 </head>
 <body>
   <div class="container mt-4">
-    <h1 class="text-center mb-4">Test Cours</h1>
+    <h1 class="text-center mb-4">Gestion des Cours</h1>
 
     <!-- Formulaire pour ajouter un cours -->
     <div class="card mb-4">
@@ -71,10 +104,6 @@
           <div class="form-group">
             <label for="courseName">Nom du cours</label>
             <input type="text" class="form-control" id="courseName" placeholder="Nom du cours" required>
-          </div>
-          <div class="form-group">
-            <label for="courseDescription">Description</label>
-            <textarea class="form-control" id="courseDescription" rows="3" placeholder="Description du cours" required></textarea>
           </div>
           <div class="form-group">
             <label for="courseDuration">Durée (en heures)</label>
@@ -100,10 +129,6 @@
           <div class="form-group">
             <label for="newCourseName">Nouveau nom du cours</label>
             <input type="text" class="form-control" id="newCourseName" placeholder="Nouveau nom du cours" required>
-          </div>
-          <div class="form-group">
-            <label for="newCourseDescription">Nouvelle description</label>
-            <textarea class="form-control" id="newCourseDescription" rows="3" placeholder="Nouvelle description" required></textarea>
           </div>
           <div class="form-group">
             <label for="newCourseDuration">Nouvelle durée (en heures)</label>
@@ -132,7 +157,6 @@
     <div id="result" class="mt-4"></div>
   </div>
 
-  <!-- Inclusion des scripts Bootstrap -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
