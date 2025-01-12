@@ -328,4 +328,4 @@ Pour toute question ou suggestion, veuillez utiliser la section des issues sur l
 
 ---
 
-## ***NB*** Il reste quelque ajustement à faire pour que tout execution marche sans erreur 
+## ***NB*** : Il reste quelque ajustement à faire pour que tout execution marche sans erreur 
