@@ -108,11 +108,11 @@ async function deleteCourse(req, res) {
 async function getCourseStats(req, res) {
   try {
     const totalCourses = await mongoService.getTotalCount('courses');
-    const averageRating = await mongoService.getAverageField('courses', 'rating');
+   // const averageRating = await mongoService.getAverageField('courses', 'rating');
 
     return res.status(200).json({
       totalCourses,
-      averageRating,
+   //   averageRating,
     });
   } catch (error) {
     console.error('Error fetching course stats:', error);

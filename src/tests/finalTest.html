@@ -7,36 +7,23 @@
   <!-- Inclusion de Bootstrap pour le design -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <script>
-    // // Simuler la récupération des statistiques (pour les tests)
-    // async function getStats(type) {
-    //   let statsMessage = '';
-    //   if (type === 'student') {
-    //     statsMessage = 'Statistiques des Étudiants: 500 étudiants inscrits, 80% complétés.';
-    //   } else if (type === 'enrollment') {
-    //     statsMessage = 'Statistiques des Inscriptions: 300 inscriptions cette année.';
-    //   } else if (type === 'course') {
-    //     statsMessage = 'Statistiques des Cours: 20 cours offerts, 5 en cours.';
-    //   }
-    //   document.getElementById('statsResult').innerHTML = `<div class="alert alert-info" role="alert">${statsMessage}</div>`;
-    // }
-
-    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Fonction pour récupérer les statistiques depuis l'API
     async function getStats(type) {
       try {
         let response;
         if (type === 'student') {
-          response = await fetch('stats/student');
+          response = await fetch('http://localhost:3000/students/stats');
         } else if (type === 'enrollment') {
-          response = await fetch('/stats/enrollment');
+          response = await fetch('http://localhost:3000/enrollments/stats');
         } else if (type === 'course') {
-          response = await fetch('/stats/course');
+          response = await fetch('http://localhost:3000/courses/stats');
         }
-        
+         
         // Vérifier si la réponse est valide
         if (response.ok) {
           const data = await response.json();
+          console.log('Statistiques:', data);
           let statsMessage = '';
           
           if (type === 'student') {
@@ -44,7 +31,7 @@
           } else if (type === 'enrollment') {
             statsMessage = `Statistiques des Inscriptions: ${data.totalEnrollments} inscriptions, Cours le plus populaire: ${data.mostPopularCourse._id} avec ${data.mostPopularCourse.count} inscriptions.`;
           } else if (type === 'course') {
-            statsMessage = `Statistiques des Cours: ${data.totalCourses} cours disponibles, Moyenne des évaluations: ${data.averageRating.toFixed(2)}.`;
+            statsMessage = `Statistiques des Cours: ${data.totalCourses} cours disponibles.`;
           }
           
           document.getElementById('statsResult').innerHTML = `<div class="alert alert-info" role="alert">${statsMessage}</div>`;

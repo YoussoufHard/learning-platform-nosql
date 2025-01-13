@@ -13,8 +13,8 @@ async function createEnrollment(req, res) {
 
   try {
     const enrollment = {
-      studentId: ObjectId(studentId),
-      courseId: ObjectId(courseId),
+      studentId: new ObjectId(studentId),
+      courseId: new ObjectId(courseId),
       enrollmentDate: enrollmentDate || new Date(),
     };
 
@@ -47,11 +47,12 @@ async function getEnrollmentById(req, res) {
   const { id } = req.params;
 
   try {
-    // Vérifier dans le cache Redis
-    const cachedEnrollment = await redisService.getCachedData(`enrollment:${id}`);
-    if (cachedEnrollment) {
-      return res.status(200).json(JSON.parse(cachedEnrollment));
-    }
+
+          // Vérifier dans le cache Redis
+        const cachedEnrollment = await redisService.getCachedData(`enrollment:${id}`);
+        if (cachedEnrollment) {
+          return res.status(200).json(cachedEnrollment); // Pas besoin de JSON.parse ici
+        }
 
     // Si non trouvé dans Redis, chercher dans MongoDB
     const enrollment = await mongoService.findOneById('enrollments', id);

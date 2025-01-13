@@ -3,128 +3,174 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Inscription - Enrôlement</title>
-  <!-- Inclusion de Bootstrap pour le design -->
+  <title>Gestion des Inscriptions</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <script>
-    // Fonction pour créer une inscription
-    async function createEnrollment() {
-      const response = await fetch('/enrollments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          studentId: document.getElementById('studentId').value,
-          courseId: document.getElementById('courseId').value,
-          enrollmentDate: document.getElementById('enrollmentDate').value
-        })
-      });
-      const data = await response.json();
-      document.getElementById('result').innerHTML = `<p>Inscription créée pour l'étudiant ID: ${data.studentId} au cours ID: ${data.courseId}</p>`;
-    }
-
-    // Fonction pour récupérer toutes les inscriptions
-    async function getAllEnrollments() {
-      const response = await fetch('/enrollments');
-      const data = await response.json();
-      let enrollmentList = '<ul>';
-      data.forEach(enrollment => {
-        enrollmentList += `<li>Étudiant ID: ${enrollment.studentId} - Cours ID: ${enrollment.courseId} - Date d\'inscription: ${enrollment.enrollmentDate}</li>`;
-      });
-      enrollmentList += '</ul>';
-      document.getElementById('result').innerHTML = enrollmentList;
-    }
-
-    // Fonction pour mettre à jour une inscription
-    async function updateEnrollment() {
-      const enrollmentId = document.getElementById('enrollmentId').value;
-      const response = await fetch(`/enrollments/${enrollmentId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          enrollmentDate: document.getElementById('newEnrollmentDate').value
-        })
-      });
-      const data = await response.json();
-      document.getElementById('result').innerHTML = `<p>Inscription mise à jour : Étudiant ID: ${data.studentId}, Cours ID: ${data.courseId}</p>`;
-    }
-
-    // Fonction pour supprimer une inscription
-    async function deleteEnrollment() {
-      const enrollmentId = document.getElementById('enrollmentId').value;
-      const response = await fetch(`/enrollments/${enrollmentId}`, { method: 'DELETE' });
-      const data = await response.json();
-      document.getElementById('result').innerHTML = `<p>Inscription supprimée pour l'étudiant ID: ${data.studentId}</p>`;
-    }
-  </script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
-  <div class="container mt-4">
-    <h1 class="text-center mb-4">Test Inscription - Enrôlement</h1>
+  <div class="container mt-5">
+    <h2>Gestion des Inscriptions</h2>
+    
+    <!-- Button to toggle enrollments visibility -->
+    <button id="toggleEnrollmentsBtn" class="btn btn-info mb-4">Afficher/Masquer les Inscriptions</button>
 
-    <!-- Formulaire pour ajouter une inscription -->
-    <div class="card mb-4">
-      <div class="card-body">
-        <h5 class="card-title">Créer une inscription</h5>
-        <form>
-          <div class="form-group">
-            <label for="studentId">ID de l'étudiant</label>
-            <input type="text" class="form-control" id="studentId" placeholder="ID de l'étudiant" required>
-          </div>
-          <div class="form-group">
-            <label for="courseId">ID du cours</label>
-            <input type="text" class="form-control" id="courseId" placeholder="ID du cours" required>
-          </div>
-          <div class="form-group">
-            <label for="enrollmentDate">Date d'inscription</label>
-            <input type="date" class="form-control" id="enrollmentDate" required>
-          </div>
-          <button type="button" class="btn btn-primary" onclick="createEnrollment()">Créer l'inscription</button>
-        </form>
+    <!-- Form to create or update an enrollment -->
+    <form id="enrollmentForm">
+      <div class="form-group">
+        <label for="studentId">ID Étudiant</label>
+        <input type="text" id="studentId" class="form-control" placeholder="ID Étudiant">
       </div>
+      <div class="form-group">
+        <label for="courseId">ID Cours</label>
+        <input type="text" id="courseId" class="form-control" placeholder="ID Cours">
+      </div>
+      <div class="form-group">
+        <label for="enrollmentDate">Date d'Inscription</label>
+        <input type="date" id="enrollmentDate" class="form-control">
+      </div>
+      <button type="submit" class="btn btn-primary">Enregistrer l'Inscription</button>
+    </form>
+
+    <!-- Table for displaying enrollments -->
+    <div id="enrollmentsTable" style="display: none;">
+      <h3>Liste des Inscriptions</h3>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>ID Étudiant</th>
+            <th>ID Cours</th>
+            <th>Date d'Inscription</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="enrollmentsTableBody"></tbody>
+      </table>
     </div>
 
-    <!-- Bouton pour récupérer toutes les inscriptions -->
-    <button class="btn btn-info mb-4" onclick="getAllEnrollments()">Voir toutes les inscriptions</button>
-
-    <!-- Formulaire pour mettre à jour une inscription -->
-    <div class="card mb-4">
-      <div class="card-body">
-        <h5 class="card-title">Mettre à jour une inscription</h5>
-        <form>
-          <div class="form-group">
-            <label for="enrollmentId">ID de l'inscription</label>
-            <input type="text" class="form-control" id="enrollmentId" placeholder="ID de l'inscription" required>
+    <!-- Modal for results -->
+    <div class="modal fade" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="resultModalLabel">Résultat</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-          <div class="form-group">
-            <label for="newEnrollmentDate">Nouvelle date d'inscription</label>
-            <input type="date" class="form-control" id="newEnrollmentDate" required>
+          <div class="modal-body" id="resultMessage"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
           </div>
-          <button type="button" class="btn btn-warning" onclick="updateEnrollment()">Mettre à jour l'inscription</button>
-        </form>
+        </div>
       </div>
     </div>
-
-    <!-- Formulaire pour supprimer une inscription -->
-    <div class="card mb-4">
-      <div class="card-body">
-        <h5 class="card-title">Supprimer une inscription</h5>
-        <form>
-          <div class="form-group">
-            <label for="enrollmentId">ID de l'inscription</label>
-            <input type="text" class="form-control" id="enrollmentId" placeholder="ID de l'inscription" required>
-          </div>
-          <button type="button" class="btn btn-danger" onclick="deleteEnrollment()">Supprimer l'inscription</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Résultats des actions -->
-    <div id="result" class="mt-4"></div>
   </div>
 
-  <!-- Inclusion des scripts Bootstrap -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    const apiUrl = 'http://localhost:3000/enrollments'; // Replace with your actual API URL
+    const toggleButton = document.getElementById('toggleEnrollmentsBtn');
+    const enrollmentsTable = document.getElementById('enrollmentsTable');
+    const enrollmentsTableBody = document.getElementById('enrollmentsTableBody');
+    const resultModal = $('#resultModal');
+    const resultMessage = $('#resultMessage');
+
+    // Toggle visibility of the enrollments table
+    toggleButton.addEventListener('click', () => {
+      enrollmentsTable.style.display = enrollmentsTable.style.display === 'none' ? 'block' : 'none';
+      fetchEnrollments();
+    });
+
+    // Function to fetch all enrollments
+    async function fetchEnrollments() {
+      try {
+        const response = await fetch(apiUrl);
+        const enrollments = await response.json();
+
+        enrollmentsTableBody.innerHTML = '';
+        enrollments.forEach(enrollment => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${enrollment.studentId}</td>
+            <td>${enrollment.courseId}</td>
+            <td>${new Date(enrollment.enrollmentDate).toLocaleDateString()}</td>
+            <td>
+              <button class="btn btn-warning" onclick="editEnrollment('${enrollment._id}')">Modifier</button>
+              <button class="btn btn-danger" onclick="deleteEnrollment('${enrollment._id}')">Supprimer</button>
+            </td>
+          `;
+          enrollmentsTableBody.appendChild(row);
+        });
+      } catch (error) {
+        showResultModal('Erreur lors de la récupération des inscriptions.', 'danger');
+      }
+    }
+
+    // Function to handle form submission for creating or updating enrollment
+    document.getElementById('enrollmentForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const studentId = document.getElementById('studentId').value;
+      const courseId = document.getElementById('courseId').value;
+      const enrollmentDate = document.getElementById('enrollmentDate').value || new Date().toISOString();
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId, courseId, enrollmentDate }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          showResultModal('Inscription créée avec succès!', 'success');
+          fetchEnrollments();
+        } else {
+          showResultModal(data.error || 'Erreur interne.', 'danger');
+        }
+      } catch (error) {
+        showResultModal('Erreur lors de la création de l\'inscription.', 'danger');
+      }
+    });
+
+    // Function to edit an enrollment (fetch and pre-populate the form)
+    async function editEnrollment(id) {
+      try {
+        const response = await fetch(`${apiUrl}/${id}`);
+        const enrollment = await response.json();
+
+        document.getElementById('studentId').value = enrollment.studentId;
+        document.getElementById('courseId').value = enrollment.courseId;
+        document.getElementById('enrollmentDate').value = new Date(enrollment.enrollmentDate).toISOString().split('T')[0];
+      } catch (error) {
+        showResultModal('Erreur lors de la récupération des données de l\'inscription.', 'danger');
+      }
+    }
+
+    // Function to delete an enrollment
+    async function deleteEnrollment(id) {
+      try {
+        const response = await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
+
+        const data = await response.json();
+        if (response.ok) {
+          showResultModal('Inscription supprimée avec succès!', 'success');
+          fetchEnrollments();
+        } else {
+          showResultModal(data.error || 'Erreur lors de la suppression.', 'danger');
+        }
+      } catch (error) {
+        showResultModal('Erreur lors de la suppression de l\'inscription.', 'danger');
+      }
+    }
+
+    // Function to show the result modal
+    function showResultModal(message, type) {
+      resultMessage.text(message);
+      resultModal.removeClass('modal-success modal-danger').addClass(`modal-${type}`);
+      resultModal.modal('show');
+    }
+  </script>
 </body>
 </html>

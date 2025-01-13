@@ -110,6 +110,30 @@ async function getAverageField(collectionName, fieldName) {
   return result.length > 0 ? result[0].avgField : null;
 }
 
+async function aggregate(collectionName, pipeline) {
+  await dbConnection.connectMongo(); // Assurer la connexion à MongoDB
+  const db = dbConnection.getDb(); // Obtenir l'instance de la base de données
+  const collection = db.collection(collectionName); // Obtenir la collection
+
+  // Effectuer l'agrégation avec le pipeline
+  return await collection.aggregate(pipeline).toArray();
+}
+// un test pour la fonction getAverageField
+// async function main() {
+//   console.log("Récupération du total d'étudiants...");
+
+//   try {
+//     const totalStudents = await getTotalCount('courses');
+//     console.log('Total étudiants :', totalStudents);
+//   } catch (error) {
+//     console.error('Erreur lors de la récupération du total d\'étudiants :', error);
+//   }
+// }
+
+// // Appeler la fonction principale
+// main();
+
+
 // Export des services
 module.exports = {
   findOneById,
@@ -119,4 +143,5 @@ module.exports = {
   getTotalCount,
   getAverageField,
   getAll,
+  aggregate
 };

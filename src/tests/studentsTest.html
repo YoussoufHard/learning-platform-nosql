@@ -3,114 +3,199 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Gestion Étudiants</title>
-  <!-- Inclusion de Bootstrap pour le design -->
+  <title>Gestion des Étudiants</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <script>
-    // Fonction pour créer un étudiant
+    const apiUrl = 'http://localhost:3000/students';
+
+    let isStudentsVisible = false; // To manage showing or hiding students
+
+    // Function to create a student
     async function createStudent() {
-      const response = await fetch('/students', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: document.getElementById('firstName').value,
-          lastName: document.getElementById('lastName').value,
-          email: document.getElementById('email').value,
-          birthday: document.getElementById('dateOfBirth').value,
-          gender: document.getElementById('gender').value
-        })
-      });
-      const data = await response.json();
-      document.getElementById('result').innerHTML = `<p>Étudiant créé : ${data.firstName} ${data.lastName}</p>`;
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('studentName').value,
+            email: document.getElementById('studentEmail').value,
+            birthdate: document.getElementById('studentBirthdate').value,
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          document.getElementById('resultMessage').innerHTML = `<p class="text-success">Étudiant créé : ${data.name}</p>`;
+          $('#resultModal').modal('show');
+          if (isStudentsVisible) getAllStudents(); // Refresh if students are visible
+        } else {
+          document.getElementById('resultMessage').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          $('#resultModal').modal('show');
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
 
-    // Fonction pour obtenir tous les étudiants
+    // Function to get all students
     async function getAllStudents() {
-      const response = await fetch('/students');
-      const data = await response.json();
-      let studentList = '<ul>';
-      data.forEach(student => {
-        studentList += `<li>${student.firstName} ${student.lastName} - ${student.email}</li>`;
-      });
-      studentList += '</ul>';
-      document.getElementById('result').innerHTML = studentList;
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        if (response.ok) {
+          const tableBody = document.getElementById('studentsTableBody');
+          tableBody.innerHTML = ''; // Empty the table before adding students
+          data.forEach(student => {
+            const row = `
+              <tr>
+                <td>${student._id}</td>
+                <td>${student.name}</td>
+                <td>${student.email}</td>
+                <td>${student.age}</td>
+              </tr>
+              <tr id="details-${student._id}" class="student-details" style="display: none;">
+                <td colspan="4">
+                  <p><strong>Nom:</strong> ${student.name}</p>
+                  <p><strong>Email:</strong> ${student.email}</p>
+                  <p><strong>Âge:</strong> ${student.age}</p>
+                  <p><strong>Date de naissance:</strong> ${student.birthdate}</p>
+                </td>
+              </tr>
+            `;
+            tableBody.innerHTML += row;
+          });
+        } else {
+          document.getElementById('resultMessage').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          $('#resultModal').modal('show');
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
 
-    // Fonction pour mettre à jour un étudiant
+    // Function to update a student
     async function updateStudent() {
-      const studentId = document.getElementById('studentId').value;
-      const response = await fetch(`/students/${studentId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName: document.getElementById('newFirstName').value })
-      });
-      const data = await response.json();
-      document.getElementById('result').innerHTML = `<p>Étudiant mis à jour : ${data.firstName}</p>`;
+      const studentId = document.getElementById('updateStudentId').value;
+      try {
+        const response = await fetch(`${apiUrl}/${studentId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('newStudentName').value,
+            email: document.getElementById('newStudentEmail').value,
+            birthdate: document.getElementById('newStudentBirthdate').value,
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          document.getElementById('resultMessage').innerHTML = `<p class="text-success">Étudiant mis à jour : ${data.name}</p>`;
+          $('#resultModal').modal('show');
+          if (isStudentsVisible) getAllStudents(); // Refresh if students are visible
+        } else {
+          document.getElementById('resultMessage').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          $('#resultModal').modal('show');
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
 
-    // Fonction pour supprimer un étudiant
+    // Function to delete a student
     async function deleteStudent() {
-      const studentId = document.getElementById('studentId').value;
-      const response = await fetch(`/students/${studentId}`, { method: 'DELETE' });
-      const data = await response.json();
-      document.getElementById('result').innerHTML = `<p>Étudiant supprimé : ${data.message}</p>`;
+      const studentId = document.getElementById('deleteStudentId').value;
+      if (!studentId) {
+        document.getElementById('resultMessage').innerHTML = `<p class="text-danger">L'ID de l'étudiant est requis.</p>`;
+        $('#resultModal').modal('show');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${apiUrl}/${studentId}`, {
+          method: 'DELETE',
+        });
+        const data = await response.json();
+        if (response.ok) {
+          document.getElementById('resultMessage').innerHTML = `<p class="text-success">${data.message}</p>`;
+          $('#resultModal').modal('show');
+          if (isStudentsVisible) getAllStudents(); // Refresh if students are visible
+        } else {
+          document.getElementById('resultMessage').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          $('#resultModal').modal('show');
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
+
+    // Function to show/hide students
+    function toggleStudents() {
+      const studentsTable = document.getElementById('studentsTable');
+      isStudentsVisible = !isStudentsVisible; // Toggle visibility
+
+      if (isStudentsVisible) {
+        studentsTable.style.display = 'table'; // Show students table
+        getAllStudents(); // Load and display students
+      } else {
+        studentsTable.style.display = 'none'; // Hide students table
+      }
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('createStudentBtn').addEventListener('click', createStudent);
+      document.getElementById('updateStudentBtn').addEventListener('click', updateStudent);
+      document.getElementById('deleteStudentBtn').addEventListener('click', deleteStudent);
+      document.getElementById('toggleStudentsBtn').addEventListener('click', toggleStudents);
+    });
   </script>
 </head>
 <body>
   <div class="container mt-4">
     <h1 class="text-center mb-4">Gestion des Étudiants</h1>
-    
+
     <!-- Formulaire pour ajouter un étudiant -->
     <div class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title">Créer un étudiant</h5>
+        <h5 class="card-title">Créer un Étudiant</h5>
         <form>
           <div class="form-group">
-            <label for="firstName">Prénom</label>
-            <input type="text" class="form-control" id="firstName" placeholder="Prénom" required>
+            <label for="studentName">Nom de l'étudiant</label>
+            <input type="text" class="form-control" id="studentName" placeholder="Nom de l'étudiant" required>
           </div>
           <div class="form-group">
-            <label for="lastName">Nom</label>
-            <input type="text" class="form-control" id="lastName" placeholder="Nom" required>
+            <label for="studentEmail">Email</label>
+            <input type="email" class="form-control" id="studentEmail" placeholder="Email" required>
           </div>
           <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" class="form-control" id="email" placeholder="Email" required>
+            <label for="studentBirthdate">Date de naissance</label>
+            <input type="date" class="form-control" id="studentBirthdate" required>
           </div>
-          <div class="form-group">
-            <label for="dateOfBirth">Date de naissance</label>
-            <input type="date" class="form-control" id="dateOfBirth" required>
-          </div>
-          <div class="form-group">
-            <label for="gender">Genre</label>
-            <select class="form-control" id="gender">
-              <option value="male">Homme</option>
-              <option value="female">Femme</option>
-            </select>
-          </div>
-          <button type="button" class="btn btn-primary" onclick="createStudent()">Créer l'étudiant</button>
+          <button type="button" class="btn btn-primary" id="createStudentBtn">Créer l'étudiant</button>
         </form>
       </div>
     </div>
 
-    <!-- Bouton pour récupérer tous les étudiants -->
-    <button class="btn btn-info mb-4" onclick="getAllStudents()">Voir tous les étudiants</button>
-
     <!-- Formulaire pour mettre à jour un étudiant -->
     <div class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title">Mettre à jour un étudiant</h5>
+        <h5 class="card-title">Mettre à jour un Étudiant</h5>
         <form>
           <div class="form-group">
-            <label for="studentId">ID de l'étudiant</label>
-            <input type="text" class="form-control" id="studentId" placeholder="ID de l'étudiant" required>
+            <label for="updateStudentId">ID de l'étudiant</label>
+            <input type="text" class="form-control" id="updateStudentId" placeholder="ID de l'étudiant" required>
           </div>
           <div class="form-group">
-            <label for="newFirstName">Nouveau prénom</label>
-            <input type="text" class="form-control" id="newFirstName" placeholder="Nouveau prénom" required>
+            <label for="newStudentName">Nouveau nom</label>
+            <input type="text" class="form-control" id="newStudentName" placeholder="Nouveau nom" required>
           </div>
-          <button type="button" class="btn btn-warning" onclick="updateStudent()">Mettre à jour l'étudiant</button>
+          <div class="form-group">
+            <label for="newStudentEmail">Nouveau email</label>
+            <input type="email" class="form-control" id="newStudentEmail" placeholder="Nouveau email" required>
+          </div>
+          <div class="form-group">
+            <label for="newStudentBirthdate">Nouvelle date de naissance</label>
+            <input type="date" class="form-control" id="newStudentBirthdate" required>
+          </div>
+          <button type="button" class="btn btn-primary" id="updateStudentBtn">Mettre à jour l'étudiant</button>
         </form>
       </div>
     </div>
@@ -118,24 +203,57 @@
     <!-- Formulaire pour supprimer un étudiant -->
     <div class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title">Supprimer un étudiant</h5>
+        <h5 class="card-title">Supprimer un Étudiant</h5>
         <form>
           <div class="form-group">
-            <label for="studentId">ID de l'étudiant</label>
-            <input type="text" class="form-control" id="studentId" placeholder="ID de l'étudiant" required>
+            <label for="deleteStudentId">ID de l'étudiant</label>
+            <input type="text" class="form-control" id="deleteStudentId" placeholder="ID de l'étudiant" required>
           </div>
-          <button type="button" class="btn btn-danger" onclick="deleteStudent()">Supprimer l'étudiant</button>
+          <button type="button" class="btn btn-danger" id="deleteStudentBtn">Supprimer l'étudiant</button>
         </form>
       </div>
     </div>
 
-    <!-- Résultats des actions -->
-    <div id="result" class="mt-4"></div>
+    <!-- Button to toggle students visibility -->
+    <button id="toggleStudentsBtn" class="btn btn-info mb-4">Afficher/Masquer les étudiants</button>
+
+    <!-- Table for displaying students -->
+    <div id="studentsTable" style="display: none;">
+      <h3>Liste des Étudiants</h3>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Âge</th>
+          </tr>
+        </thead>
+        <tbody id="studentsTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Modal for results -->
+    <div class="modal fade" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="resultModalLabel">Résultat</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="resultMessage"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Inclusion des scripts Bootstrap -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

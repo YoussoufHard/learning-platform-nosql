@@ -6,7 +6,9 @@
   <title>Gestion des Cours</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <script>
-    const apiUrl = '/courses';
+    const apiUrl = 'http://localhost:3000/courses';
+
+    let isCoursesVisible = false; // Pour gérer l'affichage ou la disparition des cours
 
     // Fonction pour créer un cours
     async function createCourse() {
@@ -21,9 +23,12 @@
         });
         const data = await response.json();
         if (response.ok) {
-          document.getElementById('result').innerHTML = `<p class="text-success">Cours créé : ${data.name}</p>`;
+          document.getElementById('resultMessage').innerHTML = `<p class="text-success">Cours créé : ${data.name}</p>`;
+          $('#resultModal').modal('show');
+          if (isCoursesVisible) getAllCourses(); // Actualise si les cours sont visibles
         } else {
-          document.getElementById('result').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          document.getElementById('resultMessage').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          $('#resultModal').modal('show');
         }
       } catch (error) {
         console.error(error);
@@ -36,14 +41,27 @@
         const response = await fetch(apiUrl);
         const data = await response.json();
         if (response.ok) {
-          let courseList = '<ul>';
+          const tableBody = document.getElementById('coursesTableBody');
+          tableBody.innerHTML = ''; // Vide le tableau avant d'ajouter les cours
           data.forEach(course => {
-            courseList += `<li>Cours : ${course.name} - Durée : ${course.duration}</li>`;
+            const row = `
+              <tr>
+                <td>${course._id}</td>
+                <td>${course.name}</td>
+                <td>${course.duration}</td>
+              </tr>
+              <tr id="details-${course._id}" class="course-details" style="display: none;">
+                <td colspan="3">
+                  <p><strong>Nom:</strong> ${course.name}</p>
+                  <p><strong>Durée:</strong> ${course.duration}</p>
+                </td>
+              </tr>
+            `;
+            tableBody.innerHTML += row;
           });
-          courseList += '</ul>';
-          document.getElementById('result').innerHTML = courseList;
         } else {
-          document.getElementById('result').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          document.getElementById('resultMessage').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          $('#resultModal').modal('show');
         }
       } catch (error) {
         console.error(error);
@@ -52,7 +70,7 @@
 
     // Fonction pour mettre à jour un cours
     async function updateCourse() {
-      const courseId = document.getElementById('courseId').value;
+      const courseId = document.getElementById('updateCourseId').value;
       try {
         const response = await fetch(`${apiUrl}/${courseId}`, {
           method: 'PUT',
@@ -64,9 +82,12 @@
         });
         const data = await response.json();
         if (response.ok) {
-          document.getElementById('result').innerHTML = `<p class="text-success">Cours mis à jour : ${data.name}</p>`;
+          document.getElementById('resultMessage').innerHTML = `<p class="text-success">Cours mis à jour : ${data.name}</p>`;
+          $('#resultModal').modal('show');
+          if (isCoursesVisible) getAllCourses(); // Actualise si les cours sont visibles
         } else {
-          document.getElementById('result').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          document.getElementById('resultMessage').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          $('#resultModal').modal('show');
         }
       } catch (error) {
         console.error(error);
@@ -75,21 +96,51 @@
 
     // Fonction pour supprimer un cours
     async function deleteCourse() {
-      const courseId = document.getElementById('courseId').value;
+      const courseId = document.getElementById('deleteCourseId').value;
+      if (!courseId) {
+        document.getElementById('resultMessage').innerHTML = `<p class="text-danger">L'ID du cours est requis.</p>`;
+        $('#resultModal').modal('show');
+        return;
+      }
+
       try {
         const response = await fetch(`${apiUrl}/${courseId}`, {
           method: 'DELETE',
         });
         const data = await response.json();
         if (response.ok) {
-          document.getElementById('result').innerHTML = `<p class="text-success">${data.message}</p>`;
+          document.getElementById('resultMessage').innerHTML = `<p class="text-success">${data.message}</p>`;
+          $('#resultModal').modal('show');
+          if (isCoursesVisible) getAllCourses(); // Actualise si les cours sont visibles
         } else {
-          document.getElementById('result').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          document.getElementById('resultMessage').innerHTML = `<p class="text-danger">Erreur : ${data.error}</p>`;
+          $('#resultModal').modal('show');
         }
       } catch (error) {
         console.error(error);
       }
     }
+
+    // Fonction pour afficher/masquer les cours
+    function toggleCourses() {
+      const coursesTable = document.getElementById('coursesTable');
+      isCoursesVisible = !isCoursesVisible; // Inverse la visibilité
+
+      if (isCoursesVisible) {
+        coursesTable.style.display = 'table'; // Affiche le tableau des cours
+        getAllCourses(); // Charge et affiche les cours
+      } else {
+        coursesTable.style.display = 'none'; // Cache le tableau des cours
+      }
+    }
+
+    // Ajout des event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('createCourseBtn').addEventListener('click', createCourse);
+      document.getElementById('updateCourseBtn').addEventListener('click', updateCourse);
+      document.getElementById('deleteCourseBtn').addEventListener('click', deleteCourse);
+      document.getElementById('toggleCoursesBtn').addEventListener('click', toggleCourses);
+    });
   </script>
 </head>
 <body>
@@ -109,13 +160,10 @@
             <label for="courseDuration">Durée (en heures)</label>
             <input type="number" class="form-control" id="courseDuration" placeholder="Durée du cours" required>
           </div>
-          <button type="button" class="btn btn-primary" onclick="createCourse()">Créer le cours</button>
+          <button type="button" class="btn btn-primary" id="createCourseBtn">Créer le cours</button>
         </form>
       </div>
     </div>
-
-    <!-- Bouton pour récupérer tous les cours -->
-    <button class="btn btn-info mb-4" onclick="getAllCourses()">Voir tous les cours</button>
 
     <!-- Formulaire pour mettre à jour un cours -->
     <div class="card mb-4">
@@ -123,8 +171,8 @@
         <h5 class="card-title">Mettre à jour un Cours</h5>
         <form>
           <div class="form-group">
-            <label for="courseId">ID du cours</label>
-            <input type="text" class="form-control" id="courseId" placeholder="ID du cours" required>
+            <label for="updateCourseId">ID du cours</label>
+            <input type="text" class="form-control" id="updateCourseId" placeholder="ID du cours" required>
           </div>
           <div class="form-group">
             <label for="newCourseName">Nouveau nom du cours</label>
@@ -134,7 +182,7 @@
             <label for="newCourseDuration">Nouvelle durée (en heures)</label>
             <input type="number" class="form-control" id="newCourseDuration" placeholder="Nouvelle durée" required>
           </div>
-          <button type="button" class="btn btn-warning" onclick="updateCourse()">Mettre à jour le cours</button>
+          <button type="button" class="btn btn-warning" id="updateCourseBtn">Mettre à jour le cours</button>
         </form>
       </div>
     </div>
@@ -145,20 +193,55 @@
         <h5 class="card-title">Supprimer un Cours</h5>
         <form>
           <div class="form-group">
-            <label for="courseId">ID du cours</label>
-            <input type="text" class="form-control" id="courseId" placeholder="ID du cours" required>
+            <label for="deleteCourseId">ID du cours</label>
+            <input type="text" class="form-control" id="deleteCourseId" placeholder="ID du cours" required>
           </div>
-          <button type="button" class="btn btn-danger" onclick="deleteCourse()">Supprimer le cours</button>
+          <button type="button" class="btn btn-danger" id="deleteCourseBtn">Supprimer le cours</button>
         </form>
       </div>
     </div>
 
-    <!-- Résultats des actions -->
-    <div id="result" class="mt-4"></div>
+    <!-- Bouton pour afficher/masquer tous les cours -->
+    <button class="btn btn-info mb-4" id="toggleCoursesBtn">Voir tous les cours</button>
+
+    <!-- Tableau pour afficher les cours (initialement masqué) -->
+    <table class="table table-striped" id="coursesTable" style="display: none;">
+      <thead class="thead-dark">
+        <tr>
+          <th>ID</th>
+          <th>Nom du Cours</th>
+          <th>Durée</th>
+        </tr>
+      </thead>
+      <tbody id="coursesTableBody">
+        <!-- Les cours seront affichés ici -->
+      </tbody>
+    </table>
+
+    <!-- Modal pour afficher le message de résultat -->
+    <div class="modal fade" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="resultModalLabel">Résultat de l'action</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="resultMessage">
+            <!-- Le message du résultat de l'action sera affiché ici -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- JS Bootstrap -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
